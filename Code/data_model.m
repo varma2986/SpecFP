@@ -1,0 +1,301 @@
+%data = load('fpdata_shuf.csv');
+data = load('cpufp_8.csv');
+%data = shufflematrix(data1);
+Y = data(:,1);
+X = data(:, [2,3,4,5,6,7,8,9,10]);
+
+X_ddrfreq_size = data(:,9) .* data(:,10);
+X_ddrfreq_size_sqrt = sqrt(data(:,9) .* data(:,10));
+X_ddrfreq_size_square = X_ddrfreq_size .* 2;
+X_ddrsize_sqrt = sqrt(data(:,9));
+X_ddrfreq_sqrt = sqrt(data(:,10));
+
+X_ddrsize_by_freq = sqrt((data(:,9) ./ data(:,10)));
+X_ddrfreq_by_size = sqrt((data(:,10) ./ data(:,9)));
+
+
+X_l1ic_freq_sqrt = sqrt(data(:,5) .* data(:,4));
+X_l1ic_freq_square = ((data(:,5) .* data(:,4)) .^ 2);
+X_l3c_freq = ((data(:,8) .* data(:,4)));
+X_l1ic_freq = ((data(:,5) .* data(:,4)));
+X_l1dc_freq = ((data(:,6) .* data(:,4)));
+X_l1dc_freq_square = ((data(:,6) .* data(:,4)) .^ 2);
+X_l1dc_freq_sqrt = sqrt(data(:,6) .* data(:,4));
+X_l1dc_freq_cbrt = cbrt(data(:,6) .* data(:,4));
+X_l2c_freq_sqrt = sqrt(data(:,7) .* data(:,4)); 
+X_l2c_sqrt = sqrt(data(:,7));
+X_l1ic_sqrt = sqrt(data(:,5));
+X_l1dc_sqrt = sqrt(data(:,6));
+
+X_ddrfreq_square = data(:,10) .^ 2;
+X_ddrsize_square = data(:,9) .^ 2;
+X_ddrsize_sqrt = sqrt(data(:,9));
+X_ddrfreq_sqrt = sqrt(data(:,10));
+X_cores_per_chip = (data(:,2) ./ data(:,3));
+X_ddrsize_parabola = sqrt(2 * (sqrt(data(:,9))));
+X_freq_ddrfreq = data(:,4) .* data(:,10);
+X_freq_ddrfreq_sigmoid = 1./ (1 + exp(-1 * X_freq_ddrfreq));
+X_temp1 = 0.003330*X_freq_ddrfreq + 167.457078;
+X_freq_ddrfreq_sqrt = sqrt(data(:,4) .* data(:,10));
+X_freq_ddrfreq_cbrt = cbrt(data(:,4) .* data(:,10));
+X_l1ic_square = data(:,5) .^ 2;
+X_l1ic_squaresquare = data(:,5) .^ 4;
+X_l1ic_sqrt = sqrt(data(:,5));
+X_l1dc_square = data(:,6) .^ 2;
+X_chip_square = data(:,3) .^ 2;
+X_allcache_sqrt = sqrt((data(:,5) .* data(:,6)) .* (data(:,7) .* data(:,8)));
+X_allcache_cbrt = cbrt((data(:,5) .* data(:,6)) .* (data(:,7) .* data(:,8)));
+X_allcache_square = sqrt((data(:,5) .* data(:,6)) .* (data(:,7) .* data(:,8)));
+X_allcache = ((data(:,5) .* data(:,6)) .* (data(:,7) .* data(:,8)));
+X_allcache_freq = X_allcache .* data(:,4);
+X_allcache_freq_square = sqrt(X_allcache .* data(:,4));
+X_allcache_sigmoid = 1 ./(1 + exp(-1 * X_allcache));
+X_ddr_size_sigmoid = 1 ./ (1 + exp(-1 * data(:,9)));
+X_ddr_freq_sigmoid = 1 ./ (1 + exp(-1 * data(:,10)));
+X_l2c_sigmoid = 1 ./(1 + exp(-1 * data(:,7)));
+X_l1ic_sigmoid = 1 ./(1 + exp(-1 * data(:,5)));
+X_l1dc_sigmoid = 1 ./(1 + exp(-1 * data(:,6)));
+X_l3c_sigmoid = 1 ./(1 + exp(-1 * data(:,8)));
+X_l3c_square = data(:,8) .^ 2;
+X_l3c_sqrt = sqrt(data(:,8) .^ 2);
+X_l2c_freq_sigmoid = 1 ./(1 + exp(-1 * (data(:,7).*data(:,4))));
+X_ddrsize_ddrfreq = (data(:,9).* data(:,10));
+X_ddrsize_ddrfreq_sigmoid = 1 ./ (1 + exp(-1 * X_ddrsize_ddrfreq));
+X_ddrsize_cpufreq = (data(:,9) .* data(:,4));
+X_ddrfreq_cpufreq = (data(:,10) .* data(:,4));
+X_cores_per_chip_freq = sqrt(X_cores_per_chip .* data(:,4));
+X_cores_freq = (data(:,2) .* data(:,4));
+X_freq_per_chip = (data(:,4) ./ data(:,3));
+X_temp = X(:, [1,2,3,5,6,7,8,9]);
+%X = [X X_cores_per_chip X_l1ic_sigmoid X_l1dc_sigmoid X_l2c_sigmoid X_ddr_size_sigmoid X_l1dc_freq_sqrt X_l3c_freq ]
+X = [X X_cores_per_chip X_l1ic_sigmoid X_l1dc_sigmoid X_l2c_sigmoid X_ddr_size_sigmoid X_l1dc_freq_sqrt X_l1ic_freq X_allcache_freq X_l3c_freq X_ddrsize_ddrfreq X_cores_freq ]; 
+%X = [X X_cores_per_chip X_l1ic_sigmoid X_l1dc_sigmoid X_l2c_sigmoid X_ddr_size_sigmoid X_l1dc_freq_sqrt X_l1ic_freq X_allcache_freq X_l3c_freq X_ddrsize_ddrfreq X_cores_freq ];
+%X = [X X_cores_per_chip X_l1ic_sigmoid X_l1dc_sigmoid X_l2c_sigmoid X_ddr_size_sigmoid X_l1dc_freq_sqrt X_allcache X_l1ic_freq X_allcache_freq]
+fprintf('Size of Y is %d \n',size(Y))
+fprintf('Size of X is %d \n',size(X))
+
+fprintf('X rows are %d\n',size(X,1))
+fprintf('X columns are %d\n',size(X,2))
+%Normalize the input features
+%TIP::: Dont think about normalizing the output features right now.
+[X_norm,mean_X,std_X] = normalize(X);
+
+fprintf('Size of X_norm is %d \n',size(X_norm))
+
+% Data Analysis through plots
+
+%p = polyfit(X_freq_ddrfreq, Y, 7);
+%fprintf('coefficients are %f \n',p)
+
+%plotData(X_allcache,Y);
+%hold on;
+%xlabel('DDR Freq Freq Norm')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%plotData(X_temp,Y);
+%hold on;
+%xlabel('Cores')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+
+
+%plotData(X(:,1),Y);
+%hold on;
+%xlabel('Cores')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,2),Y);
+%hold on;
+%xlabel('Chips')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,3),Y);
+%hold on;
+%xlabel('Frequency')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,4),Y);
+%hold on;
+%xlabel('L1 ICache')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,5),Y);
+%hold on;
+%xlabel('L1 DCache')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,6),Y);
+%hold on;
+%xlabel('L2 Cache')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,7),Y);
+%hold on;
+%xlabel('L3 Cache')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,8),Y);
+%hold on;
+%xlabel('DDR Size')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,9),Y);
+%hold on;
+%xlabel('DDR Frequency')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,10),Y);
+%hold on;
+%xlabel('DDR Size* DDR frequency')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+
+
+
+
+
+
+% Data Analysis ends
+
+%freq = X(:,3);
+%plotData(freq,Y);
+%hold on;
+%
+%% Labels and Legend
+%xlabel('Frequency')
+%ylabel('FP Score')
+%
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+ 
+%plotData(X(:,8),Y);
+%hold on;
+%xlabel('DDR Size')
+%ylabel('FP Score')
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%plotData(X(:,9),Y);
+%hold on;
+%xlabel('DDR Frequency')
+%ylabel('FP Score')
+%
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+%
+%X_new = X(:,8).*X(:,9)
+%plotData(X_new,Y);
+%hold on;
+%xlabel('DDR Frequency*Size')
+%ylabel('FP Score')
+%
+%hold off;
+%
+%fprintf('\nProgram paused. Press enter to continue.\n');
+%pause;
+
+
+% Cost Function
+%% ============ Part 2: Compute Cost and Gradient ============
+%  In this part of the exercise, you will implement the cost and gradient
+%  for logistic regression. You neeed to complete the code in 
+%  costFunction.m
+
+%  Setup the data matrix appropriately, and add ones for the intercept term
+[m, n] = size(X_norm);
+
+% Add intercept term to x and X_test
+X_norm = [ones(m, 1) X_norm];
+
+% Initialize fitting parameters
+initial_theta = zeros(n + 1, 1);
+
+% Compute and display initial cost and gradient
+[cost, grad] = costFunction(initial_theta, X_norm, Y);
+
+fprintf('Cost at initial theta (zeros): %f\n', cost);
+fprintf('Gradient at initial theta (zeros): \n');
+fprintf(' %f \n', grad);
+
+%% ============= Part 3: Optimizing using fminunc  =============
+%  In this exercise, you will use a built-in function (fminunc) to find the
+%  optimal parameters theta.
+
+%  Set options for fminunc
+options = optimset('GradObj', 'on', 'MaxIter', 100000000);
+
+%  Run fminunc to obtain the optimal theta
+%  This function will return theta and the cost 
+[theta, cost] = ...
+	fminunc(@(t)(costFunction(t, X_norm, Y)), initial_theta, options);
+
+% Print theta to screen
+fprintf('Cost at theta found by fminunc: %f\n', cost);
+fprintf('theta: \n');
+fprintf(' %f \n', theta);
+
+[total_elements, accurate_elements, non_accurate_elements] = predict(theta, X_norm, Y);
+
+fprintf('Total Elements:%d \n',total_elements)
+fprintf('Accurate Elements:%d \n',accurate_elements)
+fprintf('Non Accurate Elements:%d \n',non_accurate_elements)
+
+fprintf('\n');
+fprintf('Accuracy is %f \n', ((accurate_elements/total_elements)*100))
+
+%fprintf('Mean of X is %f \n',mean_X);
+%fprintf('Stddev of X is %f \n',std_X);
+
+%fprintf('absol of 0.93 is %f \n',abs(-0.983));
